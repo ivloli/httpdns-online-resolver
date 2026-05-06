@@ -1,0 +1,22 @@
+service:
+  host: "0.0.0.0"
+  port: 8088
+  timeout_seconds: 10
+  dispatch_refresh_interval_seconds: 3600
+
+httpdns:
+  account_id: "<YOUR_ACCOUNT_ID>"
+  aes_key: "<YOUR_AES_KEY>"
+  sign_key: "<YOUR_SIGN_KEY>"
+  sign_algorithm: "hmac-sha1"
+  sign_param_name: "sign"
+  dispatch_host: "r.pp.fgnlo.com"
+  resolve_host: "r.dp.dgovl.com"
+  default_sdns_os: "ios"
+
+ip2region:
+  # optional: override bundled third_party ip2region
+  python_path: ""
+  v4_xdb: "/opt/ip2region/data/ip2region_v4.xdb"
+  v6_xdb: "/opt/ip2region/data/ip2region_v6.xdb"
+  cache_policy: "vectorIndex"

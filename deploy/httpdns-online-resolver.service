@@ -1,0 +1,16 @@
+[Unit]
+Description=HTTPDNS Online Resolver Backend
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/httpdns-online-resolver/backend
+Environment=APP_CONFIG_PATH=/opt/httpdns-online-resolver/backend/config.yaml
+ExecStart=/opt/httpdns-online-resolver/backend/.venv/bin/gunicorn -w 2 -b 0.0.0.0:8088 wsgi:application
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

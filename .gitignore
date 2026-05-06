@@ -1,0 +1,5 @@
+dist/
+backend/.venv/
+backend/__pycache__/
+frontend/__pycache__/
+.DS_Store

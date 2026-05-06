@@ -1,0 +1,21 @@
+service:
+  host: "127.0.0.1"
+  port: 8088
+  timeout_seconds: 10
+  dispatch_refresh_interval_seconds: 3600
+
+httpdns:
+  account_id: "430992419037876224"
+  aes_key: "78eb9332f1fc18a45597dbf332858ff4"
+  sign_key: "dad86fd831014d1b2364d5b98f767bcb"
+  sign_algorithm: "hmac-sha1"
+  sign_param_name: "sign"
+  dispatch_host: "r.pp.fgnlo.com"
+  resolve_host: "r.dp.dgovl.com"
+  default_sdns_os: "ios"
+
+ip2region:
+  python_path: ""
+  v4_xdb: "/Users/hechuan/Downloads/ip2region-3.15.0/data/ip2region_v4.xdb"
+  v6_xdb: "/Users/hechuan/Downloads/ip2region-3.15.0/data/ip2region_v6.xdb"
+  cache_policy: "vectorIndex"
