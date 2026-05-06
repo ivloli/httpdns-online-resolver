@@ -12,8 +12,9 @@ GUNICORN := $(VENV_DIR)/bin/gunicorn
 DIST_DIR := dist
 PKG_NAME := $(APP_NAME)-prod-offline-linux-amd64
 PKG_FILE := $(DIST_DIR)/$(PKG_NAME).tar.gz
+PKG_VENV_FILE := $(DIST_DIR)/$(PKG_NAME)-with-venv.tar.gz
 
-.PHONY: help venv install-deps run install-service enable start stop restart status logs package package-with-venv clean-dist deploy
+.PHONY: help venv install-deps run install-service enable start stop restart status logs package package-with-venv verify-package clean-dist deploy
 
 help:
 	@printf "Targets:\n"
@@ -25,6 +26,7 @@ help:
 	@printf "  make start|stop|restart|status|logs\n"
 	@printf "  make package         - Build offline deployment tar.gz\n"
 	@printf "  make package-with-venv - Build offline package including backend/.venv\n"
+	@printf "  make verify-package  - Validate produced tar.gz archives\n"
 	@printf "  make deploy          - Install deps + service + restart\n"
 
 venv:
@@ -68,8 +70,11 @@ package: clean-dist
 	cp -R deploy "$(DIST_DIR)/$(PKG_NAME)/deploy"
 	cp README.md "$(DIST_DIR)/$(PKG_NAME)/README.md"
 	cp Makefile "$(DIST_DIR)/$(PKG_NAME)/Makefile"
+	rm -rf "$(DIST_DIR)/$(PKG_NAME)/backend/.venv"
 	cd "$(DIST_DIR)" && tar -czf "$(PKG_NAME).tar.gz" "$(PKG_NAME)"
 	@printf "Built package: %s\n" "$(PKG_FILE)"
+	@file "$(PKG_FILE)"
+	@tar -tzf "$(PKG_FILE)" >/dev/null
 
 package-with-venv: clean-dist
 	@if [ ! -d "$(VENV_DIR)" ]; then \
@@ -82,8 +87,24 @@ package-with-venv: clean-dist
 	cp -R deploy "$(DIST_DIR)/$(PKG_NAME)/deploy"
 	cp README.md "$(DIST_DIR)/$(PKG_NAME)/README.md"
 	cp Makefile "$(DIST_DIR)/$(PKG_NAME)/Makefile"
+	find "$(DIST_DIR)/$(PKG_NAME)/backend/.venv" -type d -name "__pycache__" -prune -exec rm -rf {} +
+	find "$(DIST_DIR)/$(PKG_NAME)/backend/.venv" -type f -name "*.pyc" -delete
 	cd "$(DIST_DIR)" && tar -czf "$(PKG_NAME)-with-venv.tar.gz" "$(PKG_NAME)"
-	@printf "Built package: %s/%s-with-venv.tar.gz\n" "$(DIST_DIR)" "$(PKG_NAME)"
+	@printf "Built package: %s\n" "$(PKG_VENV_FILE)"
+	@file "$(PKG_VENV_FILE)"
+	@tar -tzf "$(PKG_VENV_FILE)" >/dev/null
+
+verify-package:
+	@if [ -f "$(PKG_FILE)" ]; then \
+		echo "Verifying $(PKG_FILE)"; \
+		file "$(PKG_FILE)"; \
+		tar -tzf "$(PKG_FILE)" >/dev/null; \
+	fi
+	@if [ -f "$(PKG_VENV_FILE)" ]; then \
+		echo "Verifying $(PKG_VENV_FILE)"; \
+		file "$(PKG_VENV_FILE)"; \
+		tar -tzf "$(PKG_VENV_FILE)" >/dev/null; \
+	fi
 
 clean-dist:
 	rm -rf "$(DIST_DIR)"
