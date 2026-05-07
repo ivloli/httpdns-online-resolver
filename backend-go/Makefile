@@ -1,5 +1,5 @@
 .PHONY: all build test tidy install uninstall start stop restart status \
-	package prepare-release build-release release-package release-checksum clean run logs
+	package prepare-release build-release release-package release-checksum clean run logs deploy
 
 APP_NAME := httpdns-online-resolver-go
 BIN_DIR := bin
@@ -19,13 +19,22 @@ RELEASE_TAR := $(RELEASE_NAME).tar.gz
 PREFIX ?= /usr/local
 INSTALL_BIN := $(PREFIX)/bin/$(APP_NAME)
 ETC_DIR ?= /etc/httpdns-online-resolver-go
-CONFIG_SRC ?= config.example.yaml
+CONFIG_SRC ?= config.yaml
 CONFIG_NAME := config.yaml
 SERVICE_DIR ?= /etc/systemd/system
 SERVICE_FILE ?= httpdns-online-resolver-go.service
 SYSTEMD_SERVICE_PATH := $(SERVICE_DIR)/$(SERVICE_FILE)
 
 all: build
+
+help:
+	@printf "Targets:\n"
+	@printf "  make build                - Build local binary to bin/\n"
+	@printf "  make install              - Install binary + service + config\n"
+	@printf "  make deploy               - One-shot install + enable + restart + status\n"
+	@printf "  make release-package      - Build offline release tar.gz\n"
+	@printf "  make release-checksum     - Print sha256 checksum of release tar.gz\n"
+	@printf "  make logs                 - Follow service logs\n"
 
 build:
 	install -d -m 755 $(BIN_DIR)
@@ -60,6 +69,8 @@ install:
 	systemctl daemon-reload
 	systemctl enable httpdns-online-resolver-go
 	@echo "Installed $(APP_NAME). Edit $(ETC_DIR)/$(CONFIG_NAME) then start service."
+
+deploy: install restart status
 
 uninstall:
 	systemctl stop httpdns-online-resolver-go 2>/dev/null || true
