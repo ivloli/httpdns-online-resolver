@@ -8,18 +8,21 @@ PYTHON ?= python3
 VENV_DIR := backend/.venv
 PIP := $(VENV_DIR)/bin/pip
 GUNICORN := $(VENV_DIR)/bin/gunicorn
+WHEELHOUSE_DIR := backend/wheelhouse
 
 DIST_DIR := dist
 PKG_NAME := $(APP_NAME)-prod-offline-linux-amd64
 PKG_FILE := $(DIST_DIR)/$(PKG_NAME).tar.gz
 PKG_VENV_FILE := $(DIST_DIR)/$(PKG_NAME)-with-venv.tar.gz
 
-.PHONY: help venv install-deps run install-service enable start stop restart status logs package package-with-venv verify-package clean-dist deploy
+.PHONY: help venv install-deps download-wheels install-deps-offline run install-service enable start stop restart status logs package package-with-venv verify-package clean-dist deploy
 
 help:
 	@printf "Targets:\n"
 	@printf "  make venv            - Create backend virtualenv\n"
 	@printf "  make install-deps    - Install backend Python dependencies\n"
+	@printf "  make download-wheels - Download offline wheels to backend/wheelhouse\n"
+	@printf "  make install-deps-offline - Install deps from backend/wheelhouse\n"
 	@printf "  make run             - Run backend locally with gunicorn\n"
 	@printf "  make install-service - Install systemd service file\n"
 	@printf "  make enable          - Enable service at boot\n"
@@ -35,6 +38,20 @@ venv:
 install-deps: venv
 	"$(PIP)" install --upgrade pip
 	"$(PIP)" install -r backend/requirements.txt
+
+download-wheels: venv
+	"$(PIP)" install --upgrade pip wheel
+	mkdir -p "$(WHEELHOUSE_DIR)"
+	"$(PIP)" download -r backend/requirements.txt -d "$(WHEELHOUSE_DIR)"
+	@printf "Downloaded wheels to %s\n" "$(WHEELHOUSE_DIR)"
+
+install-deps-offline: venv
+	@if [ ! -d "$(WHEELHOUSE_DIR)" ]; then \
+		echo "$(WHEELHOUSE_DIR) not found, run 'make download-wheels' on online machine first"; \
+		exit 1; \
+	fi
+	"$(PIP)" install --upgrade pip
+	"$(PIP)" install --no-index --find-links="$(WHEELHOUSE_DIR)" -r backend/requirements.txt
 
 run: install-deps
 	cd backend && APP_CONFIG_PATH="$$PWD/config.yaml" "$$PWD/.venv/bin/gunicorn" -w 2 -b 0.0.0.0:8088 wsgi:application

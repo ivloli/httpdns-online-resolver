@@ -60,6 +60,25 @@ make logs
 make restart
 ```
 
+### 离线依赖安装（有网机下载，无网机安装）
+
+有网机器执行：
+
+```bash
+cd /path/to/httpdns-online-resolver
+make download-wheels
+```
+
+将 `backend/wheelhouse` 连同项目代码一起拷到无网机器后执行：
+
+```bash
+cd /opt/httpdns-online-resolver
+make install-deps-offline
+make install-service
+make enable
+make restart
+```
+
 ### 可选：开启 IP 地区/线路展示（ip2region）
 
 后端支持用 `ip2region xdb` 对解析结果中的 IP 做地区/线路增强（国家-省份-市 + 线路）。

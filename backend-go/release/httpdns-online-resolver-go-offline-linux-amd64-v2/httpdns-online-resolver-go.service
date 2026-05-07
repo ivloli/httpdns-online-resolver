@@ -1,0 +1,16 @@
+[Unit]
+Description=HTTPDNS Online Resolver Go Backend
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/usr/local/bin
+Environment=APP_CONFIG_PATH=/etc/httpdns-online-resolver-go/config.yaml
+ExecStart=/usr/local/bin/httpdns-online-resolver-go
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

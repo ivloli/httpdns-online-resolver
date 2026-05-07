@@ -61,16 +61,84 @@ curl -G 'http://127.0.0.1:8088/api/resolve' \
 
 ```json
 {
-  "ok": true,
-  "elapsed_ms": 86,
   "data": {
+    "cache": {
+      "cache_key": "www.baidu.com|111.55.146.208|global|4,6",
+      "expire_at": 1778063792,
+      "hit": false,
+      "ttl": 120
+    },
+    "dispatch": {
+      "endpoints": [
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": ""
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "8.163.43.38"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "8.163.67.198"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "39.107.68.250"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "39.107.70.115"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "101.37.193.206"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "101.37.195.65"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "118.190.152.160"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "47.103.218.137"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "47.103.219.65"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "47.104.13.65"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "8.148.5.57"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "8.162.7.114"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "8.156.94.192"
+        },
+        {
+          "host": "r.dp.dgovl.com",
+          "connect_ip": "8.156.94.201"
+        }
+      ]
+    },
     "display": {
-      "request_url": "https://r.dp.dgovl.com/v1/d?id=...&enc=...&sign=...",
+      "request_url": "https://r.dp.dgovl.com/v1/d?enc=89ea61fa18a79c9bf1fbe43a425de175c47343755867a5b1e8b8c26bcfea49ee845f64dec82dd0766ed0986225c3446d87d55172cb9d119874b198152e0739768a428f1753d5de293f1af9f78ef6a44fa9a87f6c5e5355df28a47520dd58b7146317a42543c5b9bccc036f9917b7b80573b99355&id=430992419037876224&sign=8S7yX8ECTpiGUKqEX6WiXmesM7E%3D",
       "summary": {
-        "client_ip": "1.2.3.4",
+        "client_ip": "111.55.146.208",
         "domain": "www.baidu.com",
-        "region": "中国",
-        "line": "移动"
+        "line": "CN",
+        "region": "中国"
       },
       "table_groups": [
         {
@@ -78,16 +146,16 @@ curl -G 'http://127.0.0.1:8088/api/resolve' \
           "record_type": "A",
           "rows": [
             {
-              "ip": "39.156.70.46",
-              "ttl": 120,
-              "region": "中国-北京-北京",
-              "isp": "移动"
+              "ip": "39.156.70.239",
+              "isp": "移动",
+              "region": "中国-北京-北京市",
+              "ttl": 120
             },
             {
-              "ip": "39.156.70.239",
-              "ttl": 120,
-              "region": "中国-北京-北京",
-              "isp": "移动"
+              "ip": "39.156.70.46",
+              "isp": "移动",
+              "region": "中国-北京-北京市",
+              "ttl": 120
             }
           ]
         },
@@ -96,41 +164,51 @@ curl -G 'http://127.0.0.1:8088/api/resolve' \
           "record_type": "AAAA",
           "rows": [
             {
-              "ip": "240e:e1:8800:aa06:0:ff:b0e1:fe69",
-              "ttl": 120,
-              "region": "中国-北京-北京",
-              "isp": "移动"
+              "ip": "2409:8c00:6c21:118b:0:ff:b0e8:f003",
+              "isp": "移动",
+              "region": "中国-广东-广州市",
+              "ttl": 120
             },
             {
-              "ip": "240e:e1:8800:aa06:0:ff:b07e:36c5",
-              "ttl": 120,
-              "region": "中国-北京-北京",
-              "isp": "移动"
+              "ip": "2409:8c00:6c21:11eb:0:ff:b0bf:59ca",
+              "isp": "移动",
+              "region": "中国-广东-广州市",
+              "ttl": 120
             }
           ]
         }
       ]
     },
     "raw_response": {
-      "answers": [],
-      "cip": "1.2.3.4",
-      "latency": 0
+      "answers": [
+        {
+          "dn": "www.baidu.com",
+          "ttl": 120,
+          "v4": {
+            "ips": [
+              "39.156.70.239",
+              "39.156.70.46"
+            ],
+            "ttl": 120
+          },
+          "v6": {
+            "ips": [
+              "2409:8c00:6c21:118b:0:ff:b0e8:f003",
+              "2409:8c00:6c21:11eb:0:ff:b0bf:59ca"
+            ],
+            "ttl": 120
+          }
+        }
+      ],
+      "cip": "111.55.146.208",
+      "latency": 229
     },
-    "ip2region": {
-      "status": {
-        "enabled": true,
-        "error": "",
-        "v4_loaded": true,
-        "v6_loaded": true
-      },
-      "locations": []
-    },
-    "dispatch": {},
-    "cache": {
-      "hit": false,
-      "cache_key": "..."
+    "request": {
+      "plain_payload": "{\"cip\":\"111.55.146.208\",\"dn\":\"www.baidu.com\",\"exp\":1778064270,\"q\":\"4,6\",\"sdns-os\":\"ios\"}"
     }
-  }
+  },
+  "elapsed_ms": 2668,
+  "ok": true
 }
 ```
 
