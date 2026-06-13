@@ -1,0 +1,8 @@
+.git
+.gitignore
+bin/
+release/
+*.tar.gz
+__pycache__/
+*.pyc
+*.md
