@@ -15,7 +15,10 @@ httpdns:
   default_sdns_os: "ios"
 
 ip2region:
-  python_path: ""
-  v4_xdb: "/Users/hechuan/Downloads/ip2region-3.15.0/data/ip2region_v4.xdb"
-  v6_xdb: "/Users/hechuan/Downloads/ip2region-3.15.0/data/ip2region_v6.xdb"
-  cache_policy: "vectorIndex"
+  v4_xdb: "./tmp/ip2region/ip2region_v4.xdb"
+  v6_xdb: "./tmp/ip2region/ip2region_v6.xdb"
+  auto_update: true
+  update_interval_seconds: 3600
+  releases_url: "https://api.github.com/repos/lionsoul2014/ip2region/releases/latest"
+  github_token: "${GITHUB_TOKEN}"
+  version_file: "./tmp/ip2region/.ip2region_release_tag"

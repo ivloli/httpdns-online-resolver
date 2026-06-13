@@ -49,8 +49,13 @@ type Config struct {
 		DefaultOS    string `yaml:"default_sdns_os"`
 	} `yaml:"httpdns"`
 	IP2Region struct {
-		V4XDB string `yaml:"v4_xdb"`
-		V6XDB string `yaml:"v6_xdb"`
+		V4XDB                 string `yaml:"v4_xdb"`
+		V6XDB                 string `yaml:"v6_xdb"`
+		AutoUpdate            bool   `yaml:"auto_update"`
+		UpdateIntervalSeconds int    `yaml:"update_interval_seconds"`
+		ReleasesURL           string `yaml:"releases_url"`
+		GithubToken           string `yaml:"github_token"`
+		VersionFile           string `yaml:"version_file"`
 	} `yaml:"ip2region"`
 }
 
@@ -64,6 +69,7 @@ type App struct {
 
 	v4Searcher *xdb.Searcher
 	v6Searcher *xdb.Searcher
+	xdbMu      sync.RWMutex
 
 	dispatchMu    sync.RWMutex
 	dispatchPools map[string][]Endpoint
@@ -121,6 +127,7 @@ func loadConfig(path string) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+	b = []byte(os.ExpandEnv(string(b)))
 	var cfg Config
 	if err := yaml.Unmarshal(b, &cfg); err != nil {
 		return Config{}, err
@@ -143,6 +150,15 @@ func loadConfig(path string) (Config, error) {
 	if cfg.Service.Host == "" {
 		cfg.Service.Host = "127.0.0.1"
 	}
+	if cfg.IP2Region.ReleasesURL == "" {
+		cfg.IP2Region.ReleasesURL = "https://api.github.com/repos/lionsoul2014/ip2region/releases/latest"
+	}
+	if cfg.IP2Region.UpdateIntervalSeconds <= 0 {
+		cfg.IP2Region.UpdateIntervalSeconds = 3600
+	}
+	if cfg.IP2Region.VersionFile == "" {
+		cfg.IP2Region.VersionFile = filepath.Join(filepath.Dir(cfg.IP2Region.V4XDB), ".ip2region_release_tag")
+	}
 	return cfg, nil
 }
 
@@ -153,6 +169,9 @@ func newApp(cfg Config) (*App, error) {
 		dispatchMeta:  map[string]DispatchMeta{},
 		resolveCache:  map[string]CachedEntry{},
 		httpClient:    &http.Client{Timeout: time.Duration(cfg.Service.TimeoutSeconds) * time.Second},
+	}
+	if err := app.ensureIP2RegionReady(); err != nil {
+		return nil, err
 	}
 	if cfg.IP2Region.V4XDB != "" {
 		s, err := loadSearcher(cfg.IP2Region.V4XDB, xdb.IPv4)
@@ -167,6 +186,9 @@ func newApp(cfg Config) (*App, error) {
 			return nil, err
 		}
 		app.v6Searcher = s
+	}
+	if cfg.IP2Region.AutoUpdate {
+		go app.ip2regionRefreshLoop()
 	}
 	return app, nil
 }
@@ -566,19 +588,25 @@ func buildGroups(rows []map[string]interface{}) []map[string]interface{} {
 func (a *App) lookupRegion(ip string) (country, province, city, isp, raw string) {
 	raw = ""
 	if strings.Contains(ip, ":") {
-		if a.v6Searcher == nil {
+		a.xdbMu.RLock()
+		searcher := a.v6Searcher
+		a.xdbMu.RUnlock()
+		if searcher == nil {
 			return
 		}
-		r, err := a.v6Searcher.Search(ip)
+		r, err := searcher.Search(ip)
 		if err != nil {
 			return
 		}
 		raw = r
 	} else {
-		if a.v4Searcher == nil {
+		a.xdbMu.RLock()
+		searcher := a.v4Searcher
+		a.xdbMu.RUnlock()
+		if searcher == nil {
 			return
 		}
-		r, err := a.v4Searcher.Search(ip)
+		r, err := searcher.Search(ip)
 		if err != nil {
 			return
 		}
